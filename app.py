@@ -95,7 +95,7 @@ def downloadFiles(yamlFile):
             
             # Download and write to file 1KB at a time
             with open(filename, 'wb') as newFile:
-                for chunk in tqdm(r.iter_content(1000)):
+                for chunk in tqdm(r.iter_content(1000), ncols=100):
                     newFile.write(chunk)
 
 def getBookCount(yamlFile):
