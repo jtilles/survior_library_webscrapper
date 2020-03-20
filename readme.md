@@ -25,3 +25,9 @@ python ./app.py
     * Airships
         * Book A
         * Book B
+
+## Updating resources
+The script will only scrape the website for links to new content if there is not an existing ```survivor.yaml```.  To force an update use the command line flag *--update* when calling the program.  Example:
+```
+python ./app.py --update
+```
