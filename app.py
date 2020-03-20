@@ -1,7 +1,6 @@
 import requests, bs4
 import yaml, os, sys
 import argparse
-from tqdm import tqdm
 
 # webpage = "http://www.survivorlibrary.com/library-download"
 # yamlFile = "survivor.yaml"
@@ -82,21 +81,24 @@ def downloadFiles(yamlFile):
             os.mkdir(directoryPath)
         for i, book in enumerate(data[category]["books"]):
             # Create filename of pdf to download
-            filename = directoryPath + "/" + data[category]["books"][i]["title"] + ".pdf"
+            filename = directoryPath + "/" + data[category]["books"][i]["title"].replace('"', "") + ".pdf"
             count += 1
             # Check if the book is already downloaded, if it is, skip it
             if os.path.exists(filename):
                 print("Skipping Book %d/%d: %s, already downloaded" %(count, numBooks, data[category]["books"][i]["title"]))
                 continue
             
-            print("Downloading Book %d of %d in category:  %s\t(%d of %d)" %(i+1, len(data[category]["books"]), category, count, numBooks))
-            link = data[category]["books"][i]["link"]
-            r = requests.get(link, allow_redirects=True)
+            print("Downloading Book %d of %d:\t%s | %s\t(%d of %d)" %(i+1, len(data[category]["books"]), category, book["title"], count, numBooks))
+            try:
+                link = data[category]["books"][i]["link"]
+                r = requests.get(link, allow_redirects=True)
             
-            # Download and write to file 1KB at a time
-            with open(filename, 'wb') as newFile:
-                for chunk in tqdm(r.iter_content(1000), ncols=100):
-                    newFile.write(chunk)
+                # Download and write to file 1KB at a time
+                with open(filename, 'wb') as newFile:
+                    for chunk in r.iter_content(1000):
+                        newFile.write(chunk)
+            except OSError:
+                print("ERROR - invalid filename: %s" %filename)
 
 def getBookCount(yamlFile):
     with open(yamlFile) as f:
