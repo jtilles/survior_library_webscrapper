@@ -12,4 +12,16 @@ python pip install -r requirements.txt
 ```
 python ./app.py
 ```
+4. Creates a subfolder for each subcategory and then puts the pdf in the subfolder.
 
+## FOLDER STRUCTURE
+* survivors_library
+    * Accounting
+        * 20th Century Bookkeeping and Accounting 1922.pdf
+        * Accounting Methods of Banks 1920.pdf
+    * Aeroplanes
+        * Book A
+        * Book B
+    * Airships
+        * Book A
+        * Book B
