@@ -1,5 +1,7 @@
 import requests, bs4
-import yaml, os
+import yaml, os, sys
+import argparse
+from tqdm import tqdm
 
 # webpage = "http://www.survivorlibrary.com/library-download"
 # yamlFile = "survivor.yaml"
@@ -61,7 +63,11 @@ def writeYamlFile(data, yamlFile):
 # Gets all information out of yaml file and download all book links
 def downloadFiles(yamlFile):
     print("importing data from yaml file: %s" %(yamlFile))
+
+    numBooks = getBookCount(yamlFile)
+    print("Going to try and fetch %d books from %s" %(numBooks, webpage))
     
+    count = 0
     with open(yamlFile) as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -77,28 +83,42 @@ def downloadFiles(yamlFile):
         for i, book in enumerate(data[category]["books"]):
             # Create filename of pdf to download
             filename = directoryPath + "/" + data[category]["books"][i]["title"] + ".pdf"
-            
+            count += 1
             # Check if the book is already downloaded, if it is, skip it
             if os.path.exists(filename):
-                print("Skipping Book: %s, already downloaded" %(data[category]["books"][i]["title"]))
+                print("Skipping Book %d/%d: %s, already downloaded" %(count, numBooks, data[category]["books"][i]["title"]))
                 continue
             
-            print("Downloading Book %d of %d in category:  %s" %(i+1, len(data[category]["books"]), category))
+            print("Downloading Book %d of %d in category:  %s\t(%d of %d)" %(i+1, len(data[category]["books"]), category, count, numBooks))
             link = data[category]["books"][i]["link"]
             r = requests.get(link, allow_redirects=True)
             
-            # Download and write to file 100KB at a time
+            # Download and write to file 1KB at a time
             with open(filename, 'wb') as newFile:
-                for chunk in r.iter_content(100000):
+                for chunk in tqdm(r.iter_content(1000)):
                     newFile.write(chunk)
 
+def getBookCount(yamlFile):
+    with open(yamlFile) as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    count = 0
+    for category in data:
+        count += len(data[category]["books"])
+    return count
 
 
 if __name__ == "__main__":
     webpage = "http://www.survivorlibrary.com/library-download"
     yamlFile = "survivor.yaml"
-
-    data = getLinks(webpage)
-    writeYamlFile(data, yamlFile)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--update", help="downloads new links and enters into survivor.yaml", action="store_true")
+    args = parser.parse_args()
+    update_files = False
+    
+    # If download flag is present or yamlFile doesn't exist, download new index
+    if (args.update) or (not os.path.exists(yamlFile)):
+        print("Downloading New Index and saving to %s" %yamlFile)
+        data = getLinks(webpage)
+        writeYamlFile(data, yamlFile)    
 
     downloadFiles(yamlFile)
