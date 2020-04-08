@@ -5,11 +5,11 @@ This is a an example app for me to practice web scrapping.  I will first webscra
 # Use
 1. Download the repo and make sure python is installed (python 3.8 was tested)
 2. Install the requirements using the following command:
-```
+```bash
 python pip install -r requirements.txt
 ```
 3. Run the app using the command:
-```
+```bash
 python ./app.py
 ```
 4. Creates a subfolder for each subcategory and then puts the pdf in the subfolder.
@@ -28,6 +28,6 @@ python ./app.py
 
 ## Updating resources
 The script will only scrape the website for links to new content if there is not an existing ```survivor.yaml```.  To force an update use the command line flag *--update* when calling the program.  Example:
-```
+```bash
 python ./app.py --update
 ```
